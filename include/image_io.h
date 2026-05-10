@@ -27,7 +27,10 @@ struct image{
 */
 image allocate_image(int width, int height);
 
-
+/* 
+    Description: De-allocate memory of the image and resets all parameters
+*/
+void free_image(image& img);
 
 
 #endif // IMAGE_IO_H

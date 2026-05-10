@@ -20,7 +20,7 @@ image allocate_image(int width, int height)
     // Round up to next 64-byte boundary
     size_t alloc_size = (size + 63) & ~(size_t)63;
     img.data = static_cast<uint8_t*>(aligned_alloc(64, alloc_size));
-    
+
     // Warning in case of failure in allocation
     if (!img.data) {
         fprintf(stderr, "[image_io] aligned_alloc failed for %dx%d image\n", width, height);
@@ -29,5 +29,12 @@ image allocate_image(int width, int height)
     memset(img.data, 0, alloc_size);
 
     return img;
+}
 
+
+void free_image(image& img) {
+    free(img.data); // Free allocated memory
+    img.data   = nullptr;
+    img.width  = 0;
+    img.height = 0;
 }
