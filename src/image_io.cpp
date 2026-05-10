@@ -74,3 +74,27 @@ bool load_image(const char* path, int width, int height, image& out_image)
 }
 
 
+
+bool save_image(const char* path, const image& img) {
+    FILE* f = fopen(path, "wb"); // Open file path to save image
+    // Failed in opening the file 
+    if (!f) {
+        fprintf(stderr, "[image_io] Cannot open '%s' for writing\n", path);
+        return false;
+    }
+
+    size_t image_size = (size_t)img.width * img.height;
+    // Write image
+    size_t written_size = fwrite(img.data, 1, image_size, f);
+    fclose(f);
+
+    if (written_size != image_size) {
+        fprintf(stderr, "[image_io] Write incomplete: %zu of %zu bytes\n", written_size, image_size);
+        return false;
+    }
+    return true;
+}
+
+
+
+

@@ -41,4 +41,12 @@ void free_image(image& img);
 bool load_image(const char* path, int width, int height, image& out_image); 
 
 
+/* 
+    Description: Save Image in the given path
+    Input: file path, image to be saved
+    Return: Success or Failure of loading the image
+*/
+bool save_image(const char* path, const image& img);
+
+
 #endif // IMAGE_IO_H
