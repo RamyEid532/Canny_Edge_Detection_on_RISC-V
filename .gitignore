@@ -1,0 +1,19 @@
+# Build artifacts and directories
+build/
+*.o
+*.out
+*.exe
+
+# Image I/O testing files
+*.raw
+*.bin
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Personal IDE Settings
+.cache/
+.vscode/
+.clangd
+compile_commands.json
