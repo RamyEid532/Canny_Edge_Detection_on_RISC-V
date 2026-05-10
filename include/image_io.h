@@ -44,7 +44,7 @@ bool load_image(const char* path, int width, int height, image& out_image);
 /* 
     Description: Save Image in the given path
     Input: file path, image to be saved
-    Return: Success or Failure of loading the image
+    Return: Success or Failure of saving the image
 */
 bool save_image(const char* path, const image& img);
 
