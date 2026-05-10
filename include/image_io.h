@@ -22,15 +22,23 @@ struct image{
 
 /* 
     Description: Allocate memory for a blank image
-    Input: takes the height and width of image
+    Input: the height and width of image
     Must use free_image() to de-allocate
 */
 image allocate_image(int width, int height);
 
 /* 
-    Description: De-allocate memory of the image and resets all parameters
+    Description: De-allocate memory of the image and reset all parameters
 */
 void free_image(image& img);
+
+
+/* 
+    Description: Load Image from the given path
+    Input: file path of image, the height and width of image, image_struct to hold the read image 
+    Return: Success or Failure of loading the image
+*/
+bool load_image(const char* path, int width, int height, image& out_image); 
 
 
 #endif // IMAGE_IO_H

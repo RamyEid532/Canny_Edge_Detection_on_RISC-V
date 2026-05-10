@@ -38,3 +38,39 @@ void free_image(image& img) {
     img.width  = 0;
     img.height = 0;
 }
+
+
+bool load_image(const char* path, int width, int height, image& out_image) 
+{
+    FILE* f = fopen(path, "rb"); //Open image file path
+    // Failed in opening the file 
+    if (!f) {
+        fprintf(stderr, "[image_io] Cannot open '%s' for reading\n", path);
+        return false;
+    }
+
+    out_image = allocate_image(width, height);
+    // Failed allocation 
+    if (!out_image.data) { 
+        fclose(f); 
+        return false; 
+    }
+
+    size_t expected_size = (size_t)width * height;
+    // Read the image
+    size_t actual_size = fread(out_image.data, 1, expected_size, f);
+    fclose(f);
+
+    // Size mismatch
+    if (actual_size != expected_size) {
+        fprintf(stderr, "[image_io] Expected %zu bytes, got %zu from '%s'\n",
+                expected_size, actual_size, path);
+        
+        free_image(out_image);
+        return false;
+    }
+
+    return true;
+}
+
+
