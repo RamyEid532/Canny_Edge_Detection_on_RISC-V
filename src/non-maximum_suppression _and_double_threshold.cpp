@@ -1,4 +1,4 @@
-#include "canny_post.h"
+#include "non-maximum_suppression _and_double_threshold.h"
 #include <algorithm>
 
 /*==============================================================================
