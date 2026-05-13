@@ -2,7 +2,8 @@
 #define HYSTERESIS_H
 
 #include "image_io.h"
-#include "canny_post.h"
+#include "suppression.h"
+#include "thresholding.h"
 #include <cstdint>
 
 /*==============================================================================
