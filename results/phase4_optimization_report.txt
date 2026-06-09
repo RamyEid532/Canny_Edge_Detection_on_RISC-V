@@ -1,0 +1,48 @@
+Phase 4 - Compiler Optimization Sweep Results
+Image: 512x512 | Warmup: 20 | Iterations: 200
+==============================================
+
+OPT_FLAG="-O0":
+Total Pipeline: 245.804 ms
+- Stage 1 - Gaussian Blur:      102.990 ms
+- Stage 2 - Sobel Gradient:     127.488 ms
+- Stage 3 - Non-Max Suppression: 10.666 ms
+- Stage 4 - Double Threshold:    2.108 ms
+- Stage 5 - Hysteresis Tracking: 2.552 ms
+- Binary Size: 436K
+
+OPT_FLAG="-O2":
+Total Pipeline: 81.880 ms
+- Stage 1 - Gaussian Blur:      34.536 ms
+- Stage 2 - Sobel Gradient:     43.049 ms
+- Stage 3 - Non-Max Suppression: 1.673 ms
+- Stage 4 - Double Threshold:    1.255 ms
+- Stage 5 - Hysteresis Tracking: 1.366 ms
+- Binary Size: 440K
+
+OPT_FLAG="-O3":
+Total Pipeline: 235.431 ms
+- Stage 1 - Gaussian Blur:      48.696 ms
+- Stage 2 - Sobel Gradient:     182.963 ms
+- Stage 3 - Non-Max Suppression: 1.586 ms
+- Stage 4 - Double Threshold:    1.147 ms
+- Stage 5 - Hysteresis Tracking: 1.039 ms
+- Binary Size: 457K
+
+OPT_FLAG="-Os":
+Total Pipeline: 121.113 ms
+- Stage 1 - Gaussian Blur:      45.231 ms
+- Stage 2 - Sobel Gradient:     70.475 ms
+- Stage 3 - Non-Max Suppression: 2.428 ms
+- Stage 4 - Double Threshold:    1.431 ms
+- Stage 5 - Hysteresis Tracking: 1.548 ms
+- Binary Size: 437K
+
+OPT_FLAG="-Ofast":
+Total Pipeline: 287.396 ms
+- Stage 1 - Gaussian Blur:      46.808 ms
+- Stage 2 - Sobel Gradient:     236.748 ms
+- Stage 3 - Non-Max Suppression: 1.624 ms
+- Stage 4 - Double Threshold:    1.209 ms
+- Stage 5 - Hysteresis Tracking: 1.008 ms
+- Binary Size: 458K
