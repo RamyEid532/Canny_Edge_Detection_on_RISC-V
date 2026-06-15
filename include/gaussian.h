@@ -32,3 +32,4 @@ static const int GAUSS_SUM = 273;
 image gaussian_blur(const image& input);
 
 #endif // GAUSSIAN_H
+image gaussian_blur_rvv(const image& input);
