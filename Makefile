@@ -21,8 +21,10 @@ RV_BUILD = $(BUILD_DIR)/rv
 HOST_CXXFLAGS = -Wall -Wextra -std=c++17 -O0 -g -I$(INC_DIR)
 HOST_LDFLAGS = -lgtest -lgtest_main -pthread
 
+# Added -flax-vector-conversions to fix type errors
 RV_CXXFLAGS = -Wall -Wextra -std=c++17 -march=rv64gcv -mabi=lp64d -O0 -g -I$(INC_DIR) \
-              --sysroot=/home/ramy_eid/riscv-toolchain/riscv64-unknown-elf
+              --sysroot=/home/ramy_eid/riscv-toolchain/riscv64-unknown-elf \
+              -flax-vector-conversions
 
 VLEN ?= 128
 QEMU_FLAGS = -cpu rv64,v=true,vlen=$(VLEN)
@@ -30,12 +32,8 @@ QEMU_FLAGS = -cpu rv64,v=true,vlen=$(VLEN)
 # ==========================================
 # Source Files
 # ==========================================
-# 1. Grab EVERY .cpp file in the src directory
 ALL_SRCS = $(wildcard $(SRC_DIR)/*.cpp)
-
-# 2. Filter out main.cpp so we don't get "multiple definition of main" in tests
 CORE_SRCS = $(filter-out $(SRC_DIR)/main.cpp, $(ALL_SRCS))
-
 RV_MAIN = $(SRC_DIR)/main.cpp
 TEST_MAIN = $(TEST_DIR)/unit_tests.cpp
 

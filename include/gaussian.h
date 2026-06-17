@@ -33,3 +33,6 @@ image gaussian_blur(const image& input);
 
 #endif // GAUSSIAN_H
 image gaussian_blur_rvv(const image& input);
+
+image gaussian_blur_rvv(const image& input);
+image gaussian_blur_rvv(const image& input);

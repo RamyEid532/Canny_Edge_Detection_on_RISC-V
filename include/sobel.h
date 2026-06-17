@@ -60,3 +60,6 @@ void free_sobel_result(sobel_result& result);
 
 #endif // SOBEL_H
 sobel_result sobel_gradient_rvv(const image& input);
+
+sobel_result sobel_gradient_rvv(const image& input);
+sobel_result sobel_gradient_rvv(const image& input);
