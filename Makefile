@@ -21,8 +21,8 @@ RV_BUILD = $(BUILD_DIR)/rv
 HOST_CXXFLAGS = -Wall -Wextra -std=c++17 -O0 -g -I$(INC_DIR)
 HOST_LDFLAGS = -lgtest -lgtest_main -pthread
 
-RV_CXXFLAGS = -Wall -Wextra -std=c++17 -march=rv64gcv -mabi=lp64d -O0 -g -I$(INC_DIR) \
-              --sysroot=/home/ramy_eid/riscv-toolchain/riscv64-unknown-elf
+RV_CXXFLAGS = -Wall -Wextra -std=c++17 -march=rv64gcv -mabi=lp64d $(OPT) -g -I$(INC_DIR) \
+	      --sysroot=/home/khaled-abdeluziz/riscv-toolchain/riscv64-unknown-elf
 
 VLEN ?= 128
 QEMU_FLAGS = -cpu rv64,v=true,vlen=$(VLEN)
@@ -63,7 +63,7 @@ $(RV_BUILD)/canny_rv: $(RV_MAIN) $(CORE_SRCS)
 
 run: canny_rv
 	@echo "Executing on QEMU with VLEN=$(VLEN)..."
-	$(QEMU) $(QEMU_FLAGS) ./$(RV_BUILD)/canny_rv
+	$(QEMU) $(QEMU_FLAGS) $(RV_BUILD)/canny_rv $(abspath $(IMG))
 
 clean:
 	@echo "Cleaning build directory..."

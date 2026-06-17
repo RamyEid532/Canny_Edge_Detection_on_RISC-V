@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <chrono>
 
 #include "image_io.h"
@@ -11,37 +12,44 @@
 #include "thresholding.h"
 #include "hysteresis.h"
 
-// =========================================================================
-// Helper: get nanoseconds
-// =========================================================================
 static double now_ns() {
     return (double)std::chrono::duration_cast<std::chrono::nanoseconds>(
         std::chrono::steady_clock::now().time_since_epoch()
     ).count();
 }
 
-// =========================================================================
-// Measure single stage
-// =========================================================================
+static void fill_rectangle(image& img) {
+    memset(img.data, 0, img.width * img.height);
+    for (int y = img.height/4; y < 3*img.height/4; y++)
+        for (int x = img.width/4; x < 3*img.width/4; x++)
+            img.data[y * img.width + x] = 255;
+}
+
 #define WARMUP 20
 #define ITERS  200
 
-int main() {
+int main(int argc, char* argv[]) {
     const int width  = 512;
     const int height = 512;
 
-    // Allocate input image
     image image_in = allocate_image(width, height);
-    for (int i = 0; i < width * height; i++)
-        image_in.data[i] = (uint8_t)(i % 256);
+
+    if (argc > 1) {
+        if (!load_image(argv[1], width, height, image_in)) {
+            printf("Failed to load image!\n");
+            return 1;
+        }
+        printf("Using real image: %s\n", argv[1]);
+    } else {
+        fill_rectangle(image_in);
+        printf("Using generated rectangle image.\n");
+    }
 
     printf("Canny Edge Detection - Per-Stage Timing\n");
     printf("Image: %dx%d | Warmup: %d | Iterations: %d\n", width, height, WARMUP, ITERS);
     printf("==========================================\n");
 
-    // -------------------------------------------------------
-    // WARMUP: شغّل الـ pipeline كام مرة قبل القياس
-    // -------------------------------------------------------
+    // WARMUP
     for (int i = 0; i < WARMUP; i++) {
         image b = gaussian_blur(image_in);
         sobel_result s = sobel_gradient(b);
@@ -74,21 +82,45 @@ int main() {
     t_gaussian /= ITERS;
 
     // -------------------------------------------------------
-    // Stage 2: Sobel Gradient
+    // Stage 2a: Sobel Gx/Gy
     // -------------------------------------------------------
-    double t_sobel = 0;
-    sobel_result last_sobel;
+    int16_t* gx_buf = new int16_t[width * height]();
+    int16_t* gy_buf = new int16_t[width * height]();
+
+    double t_gxgy = 0;
     for (int i = 0; i < ITERS; i++) {
         double s = now_ns();
-        sobel_result sr = sobel_gradient(last_blurred);
-        t_sobel += now_ns() - s;
-        if (i == ITERS - 1) {
-            last_sobel = sr;
-        } else {
-            free_sobel_result(sr);
-        }
+        compute_gxgy(last_blurred, gx_buf, gy_buf);
+        t_gxgy += now_ns() - s;
     }
-    t_sobel /= ITERS;
+    t_gxgy /= ITERS;
+
+    // -------------------------------------------------------
+    // Stage 2b: Magnitude
+    // -------------------------------------------------------
+    image mag_l1 = allocate_image(width, height);
+    image mag_l2 = allocate_image(width, height);
+
+    double t_mag = 0;
+    for (int i = 0; i < ITERS; i++) {
+        double s = now_ns();
+        compute_magnitude(gx_buf, gy_buf, width * height, mag_l1, mag_l2);
+        t_mag += now_ns() - s;
+    }
+    t_mag /= ITERS;
+
+    // -------------------------------------------------------
+    // Stage 2c: Direction
+    // -------------------------------------------------------
+    image direction = allocate_image(width, height);
+
+    double t_dir = 0;
+    for (int i = 0; i < ITERS; i++) {
+        double s = now_ns();
+        compute_direction(gx_buf, gy_buf, width * height, direction);
+        t_dir += now_ns() - s;
+    }
+    t_dir /= ITERS;
 
     // -------------------------------------------------------
     // Stage 3: Non-Maximum Suppression
@@ -97,7 +129,7 @@ int main() {
     image last_nms = allocate_image(width, height);
     for (int i = 0; i < ITERS; i++) {
         double s = now_ns();
-        image n = non_maximum_suppression(last_sobel.magnitude_l1, last_sobel.direction);
+        image n = non_maximum_suppression(mag_l1, direction);
         t_nms += now_ns() - s;
         if (i == ITERS - 1) {
             free_image(last_nms);
@@ -138,17 +170,29 @@ int main() {
     }
     t_hysteresis /= ITERS;
 
+    // Save output
+    image final_output = hysteresis_tracking(last_thresh);
+    printf("Saving output: %dx%d\n", final_output.width, final_output.height);
+    printf("Data ptr: %p\n", (void*)final_output.data);
+    save_image("output.raw", final_output);
+    free_image(final_output);
+
     // -------------------------------------------------------
     // Results
     // -------------------------------------------------------
-    double t_total = t_gaussian + t_sobel + t_nms + t_thresh + t_hysteresis;
+    double t_total = t_gaussian + t_gxgy + t_mag + t_dir
+                   + t_nms + t_thresh + t_hysteresis;
 
     printf("\nPer-Stage Breakdown:\n");
     printf("------------------------------------------\n");
     printf("Stage 1 - Gaussian Blur:         %7.3f ms  (%4.1f%%)\n",
            t_gaussian/1e6, 100.0*t_gaussian/t_total);
-    printf("Stage 2 - Sobel Gradient:        %7.3f ms  (%4.1f%%)\n",
-           t_sobel/1e6, 100.0*t_sobel/t_total);
+    printf("Stage 2a- Sobel Gx/Gy:           %7.3f ms  (%4.1f%%)\n",
+           t_gxgy/1e6, 100.0*t_gxgy/t_total);
+    printf("Stage 2b- Magnitude:             %7.3f ms  (%4.1f%%)\n",
+           t_mag/1e6, 100.0*t_mag/t_total);
+    printf("Stage 2c- Direction:             %7.3f ms  (%4.1f%%)\n",
+           t_dir/1e6, 100.0*t_dir/t_total);
     printf("Stage 3 - Non-Max Suppression:   %7.3f ms  (%4.1f%%)\n",
            t_nms/1e6, 100.0*t_nms/t_total);
     printf("Stage 4 - Double Threshold:      %7.3f ms  (%4.1f%%)\n",
@@ -162,7 +206,11 @@ int main() {
     // Cleanup
     free_image(image_in);
     free_image(last_blurred);
-    free_sobel_result(last_sobel);
+    delete[] gx_buf;
+    delete[] gy_buf;
+    free_image(mag_l1);
+    free_image(mag_l2);
+    free_image(direction);
     free_image(last_nms);
     free_image(last_thresh);
 

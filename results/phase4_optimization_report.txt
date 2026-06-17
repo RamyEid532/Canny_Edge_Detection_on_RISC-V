@@ -1,48 +1,54 @@
-Phase 4 - Compiler Optimization Sweep Results
+Canny Edge Detection on RISC-V - Phase 4 Optimization Sweep Results
 Image: 512x512 | Warmup: 20 | Iterations: 200
-==============================================
+======================================================================
 
-OPT_FLAG="-O0":
-Total Pipeline: 245.804 ms
-- Stage 1 - Gaussian Blur:      102.990 ms
-- Stage 2 - Sobel Gradient:     127.488 ms
-- Stage 3 - Non-Max Suppression: 10.666 ms
-- Stage 4 - Double Threshold:    2.108 ms
-- Stage 5 - Hysteresis Tracking: 2.552 ms
-- Binary Size: 436K
+Per-Stage Timing (ms)
+----------------------------------------------------------------------
+Stage                        -O0       -O2       -O3       -Os       -Ofast
+----------------------------------------------------------------------
+Stage 1 - Gaussian Blur      37.302    10.349     4.195    13.141     4.343
+Stage 2a- Sobel Gx/Gy        15.730     4.381     1.080     5.292     1.110
+Stage 2b- Magnitude           6.082     1.404     1.518     7.629     1.344
+Stage 2c- Direction           1.180     0.544     0.585     0.967     0.664
+Stage 3 - Non-Max Suppress    1.532     0.571     0.616     0.639     0.511
+Stage 4 - Double Threshold    0.550     0.220     0.249     0.238     0.251
+Stage 5 - Hysteresis          0.768     0.230     0.248     0.292     0.294
+----------------------------------------------------------------------
+Total Pipeline (ms)          63.144    17.699     8.490    28.198     8.516
+----------------------------------------------------------------------
 
-OPT_FLAG="-O2":
-Total Pipeline: 81.880 ms
-- Stage 1 - Gaussian Blur:      34.536 ms
-- Stage 2 - Sobel Gradient:     43.049 ms
-- Stage 3 - Non-Max Suppression: 1.673 ms
-- Stage 4 - Double Threshold:    1.255 ms
-- Stage 5 - Hysteresis Tracking: 1.366 ms
-- Binary Size: 440K
+Per-Stage Percentage Breakdown (%)
+----------------------------------------------------------------------
+Stage                        -O0       -O2       -O3       -Os       -Ofast
+----------------------------------------------------------------------
+Stage 1 - Gaussian Blur       59.1      58.5      49.4      46.6      51.0
+Stage 2a- Sobel Gx/Gy         24.9      24.8      12.7      18.8      13.0
+Stage 2b- Magnitude            9.6       7.9      17.9      27.1      15.8
+Stage 2c- Direction            1.9       3.1       6.9       3.4       7.8
+Stage 3 - Non-Max Suppress     2.4       3.2       7.3       2.3       6.0
+Stage 4 - Double Threshold     0.9       1.2       2.9       0.8       2.9
+Stage 5 - Hysteresis           1.2       1.3       2.9       1.0       3.4
+----------------------------------------------------------------------
 
-OPT_FLAG="-O3":
-Total Pipeline: 235.431 ms
-- Stage 1 - Gaussian Blur:      48.696 ms
-- Stage 2 - Sobel Gradient:     182.963 ms
-- Stage 3 - Non-Max Suppression: 1.586 ms
-- Stage 4 - Double Threshold:    1.147 ms
-- Stage 5 - Hysteresis Tracking: 1.039 ms
-- Binary Size: 457K
+Binary Size
+----------------------------------------------------------------------
+Flag        Size (bytes)    Size (KB)
+----------------------------------------------------------------------
+-O0         27336           26.7 KB
+-O2         21944           21.4 KB
+-O3         25920           25.3 KB
+-Os         21920           21.4 KB
+-Ofast      27464           26.8 KB
+----------------------------------------------------------------------
 
-OPT_FLAG="-Os":
-Total Pipeline: 121.113 ms
-- Stage 1 - Gaussian Blur:      45.231 ms
-- Stage 2 - Sobel Gradient:     70.475 ms
-- Stage 3 - Non-Max Suppression: 2.428 ms
-- Stage 4 - Double Threshold:    1.431 ms
-- Stage 5 - Hysteresis Tracking: 1.548 ms
-- Binary Size: 437K
+Speedup vs -O0
+----------------------------------------------------------------------
+Flag        Total (ms)    Speedup
+----------------------------------------------------------------------
+-O0          63.144        1.00x
+-O2          17.699        3.57x
+-O3           8.490        7.44x
+-Os          28.198        2.24x
+-Ofast        8.516        7.41x
+----------------------------------------------------------------------
 
-OPT_FLAG="-Ofast":
-Total Pipeline: 287.396 ms
-- Stage 1 - Gaussian Blur:      46.808 ms
-- Stage 2 - Sobel Gradient:     236.748 ms
-- Stage 3 - Non-Max Suppression: 1.624 ms
-- Stage 4 - Double Threshold:    1.209 ms
-- Stage 5 - Hysteresis Tracking: 1.008 ms
-- Binary Size: 458K
