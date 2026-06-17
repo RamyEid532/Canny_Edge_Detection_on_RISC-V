@@ -1,0 +1,93 @@
+g++ -Wall -Wextra -std=c++17 -O0 -g -Iinclude tests/unit_tests.cpp src/gaussian.cpp src/hysteresis.cpp src/image_io.cpp src/sobel.cpp src/suppression.cpp src/thresholding.cpp -lgtest -lgtest_main -pthread -o build/host/host_tests
+tests/unit_tests.cpp:53:14: warning: ‘image make_rectangle(int, int)’ defined but not used [-Wunused-function]
+   53 | static image make_rectangle(int W, int H) {
+      |              ^~~~~~~~~~~~~~
+Running host tests natively...
+./build/host/host_tests
+[==========] Running 32 tests from 6 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from GaussianTest
+[ RUN      ] GaussianTest.UniformImageInvariant
+[       OK ] GaussianTest.UniformImageInvariant (1 ms)
+[ RUN      ] GaussianTest.AllBlackStaysBlack
+[       OK ] GaussianTest.AllBlackStaysBlack (0 ms)
+[ RUN      ] GaussianTest.DimensionsPreserved
+[       OK ] GaussianTest.DimensionsPreserved (1 ms)
+[ RUN      ] GaussianTest.ImpulseResponse
+[       OK ] GaussianTest.ImpulseResponse (0 ms)
+[----------] 4 tests from GaussianTest (4 ms total)
+
+[----------] 5 tests from SobelTest
+[ RUN      ] SobelTest.ZeroGradientOnUniformImage
+[       OK ] SobelTest.ZeroGradientOnUniformImage (0 ms)
+[ RUN      ] SobelTest.VerticalEdgeDetected
+[       OK ] SobelTest.VerticalEdgeDetected (0 ms)
+[ RUN      ] SobelTest.HorizontalEdgeDetected
+[       OK ] SobelTest.HorizontalEdgeDetected (0 ms)
+[ RUN      ] SobelTest.BothMagnitudesNonZero
+[       OK ] SobelTest.BothMagnitudesNonZero (0 ms)
+[ RUN      ] SobelTest.RandomImageOutputInRange
+[       OK ] SobelTest.RandomImageOutputInRange (0 ms)
+[----------] 5 tests from SobelTest (2 ms total)
+
+[----------] 4 tests from DirectionTest
+[ RUN      ] DirectionTest.VerticalEdgeGivesDirection0
+[       OK ] DirectionTest.VerticalEdgeGivesDirection0 (0 ms)
+[ RUN      ] DirectionTest.HorizontalEdgeGivesDirection90
+[       OK ] DirectionTest.HorizontalEdgeGivesDirection90 (0 ms)
+[ RUN      ] DirectionTest.DiagonalEdgeGivesDirection45or135
+[       OK ] DirectionTest.DiagonalEdgeGivesDirection45or135 (0 ms)
+[ RUN      ] DirectionTest.AllDirectionValuesAreValid
+[       OK ] DirectionTest.AllDirectionValuesAreValid (0 ms)
+[----------] 4 tests from DirectionTest (1 ms total)
+
+[----------] 6 tests from SuppressionTest
+[ RUN      ] SuppressionTest.OutputDimensionsMatch
+[       OK ] SuppressionTest.OutputDimensionsMatch (0 ms)
+[ RUN      ] SuppressionTest.UniformMagnitudeKeepsAllInteriorPixels
+[       OK ] SuppressionTest.UniformMagnitudeKeepsAllInteriorPixels (0 ms)
+[ RUN      ] SuppressionTest.SinglePeakSurvives
+[       OK ] SuppressionTest.SinglePeakSurvives (0 ms)
+[ RUN      ] SuppressionTest.NonPeakPixelsSuppressed
+[       OK ] SuppressionTest.NonPeakPixelsSuppressed (0 ms)
+[ RUN      ] SuppressionTest.BorderPixelsAreZero
+[       OK ] SuppressionTest.BorderPixelsAreZero (0 ms)
+[ RUN      ] SuppressionTest.AllDirectionsHandled
+[       OK ] SuppressionTest.AllDirectionsHandled (0 ms)
+[----------] 6 tests from SuppressionTest (0 ms total)
+
+[----------] 6 tests from ThresholdTest
+[ RUN      ] ThresholdTest.StrongEdgesClassifiedCorrectly
+[       OK ] ThresholdTest.StrongEdgesClassifiedCorrectly (0 ms)
+[ RUN      ] ThresholdTest.WeakEdgesClassifiedCorrectly
+[       OK ] ThresholdTest.WeakEdgesClassifiedCorrectly (0 ms)
+[ RUN      ] ThresholdTest.NoEdgesClassifiedCorrectly
+[       OK ] ThresholdTest.NoEdgesClassifiedCorrectly (0 ms)
+[ RUN      ] ThresholdTest.ThreeClassesPresentInMixedImage
+[       OK ] ThresholdTest.ThreeClassesPresentInMixedImage (0 ms)
+[ RUN      ] ThresholdTest.OutputDimensionsMatch
+[       OK ] ThresholdTest.OutputDimensionsMatch (0 ms)
+[ RUN      ] ThresholdTest.NoWeakPixelsWhenLowEqualsHigh
+[       OK ] ThresholdTest.NoWeakPixelsWhenLowEqualsHigh (0 ms)
+[----------] 6 tests from ThresholdTest (0 ms total)
+
+[----------] 7 tests from HysteresisTest
+[ RUN      ] HysteresisTest.StrongEdgesAlwaysSurvive
+[       OK ] HysteresisTest.StrongEdgesAlwaysSurvive (0 ms)
+[ RUN      ] HysteresisTest.IsolatedWeakEdgesAreRemoved
+[       OK ] HysteresisTest.IsolatedWeakEdgesAreRemoved (0 ms)
+[ RUN      ] HysteresisTest.WeakEdgeAdjacentToStrongSurvives
+[       OK ] HysteresisTest.WeakEdgeAdjacentToStrongSurvives (0 ms)
+[ RUN      ] HysteresisTest.WeakEdgeDiagonallyConnectedToStrongSurvives
+[       OK ] HysteresisTest.WeakEdgeDiagonallyConnectedToStrongSurvives (0 ms)
+[ RUN      ] HysteresisTest.NoEdgePixelsStayZero
+[       OK ] HysteresisTest.NoEdgePixelsStayZero (0 ms)
+[ RUN      ] HysteresisTest.OutputDimensionsMatch
+[       OK ] HysteresisTest.OutputDimensionsMatch (0 ms)
+[ RUN      ] HysteresisTest.OutputContainsOnlyValidValues
+[       OK ] HysteresisTest.OutputContainsOnlyValidValues (0 ms)
+[----------] 7 tests from HysteresisTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 32 tests from 6 test suites ran. (11 ms total)
+[  PASSED  ] 32 tests.
