@@ -1,41 +1,45 @@
-Phase 5 - Profiling and Hotspot Identification
-Image: 512x512 | Warmup: 20 | Iterations: 200
-Scalar baseline (-O0)
-=============================================
+cat > phase5_profiling_riscv.txt << 'EOF'
+Phase 5 - Profiling and Hotspot Identification (RISC-V)
+========================================================
+Toolchain: riscv64-unknown-elf-g++
+Image: 512x512 (generated rectangle) | Warmup: 20 | Iterations: 200
+Scalar Baseline (-O3) | Binary Size: 484080 bytes (472.7 KB)
+========================================================
 
 VLEN=128:
-Stage 1 - Gaussian Blur:          53.309 ms  (33.9%)
-Stage 2a- Sobel Gx/Gy:            23.952 ms  (15.2%)
-Stage 2b- Magnitude:              66.744 ms  (42.4%)
-Stage 2c- Direction:               7.967 ms  ( 5.1%)
-Stage 3 - Non-Max Suppression:     2.831 ms  ( 1.8%)
-Stage 4 - Double Threshold:        1.120 ms  ( 0.7%)
-Stage 5 - Hysteresis Tracking:     1.439 ms  ( 0.9%)
-Total:                           157.363 ms
+  Stage 1 - Gaussian Blur:   33.092 ms  (49.9%)
+  Stage 2a- Sobel Gx/Gy:      3.413 ms  ( 5.1%)
+  Stage 2b- Magnitude:        22.986 ms  (34.7%)
+  Stage 2c- Direction:         2.141 ms  ( 3.2%)
+  Stage 3 - Non-Max Supp:      2.401 ms  ( 3.6%)
+  Stage 4 - Double Thresh:     1.171 ms  ( 1.8%)
+  Stage 5 - Hysteresis:        1.096 ms  ( 1.7%)
+  Total:                      66.300 ms
 
 VLEN=256:
-Stage 1 - Gaussian Blur:          55.618 ms  (34.8%)
-Stage 2a- Sobel Gx/Gy:            24.810 ms  (15.5%)
-Stage 2b- Magnitude:              66.383 ms  (41.5%)
-Stage 2c- Direction:               7.700 ms  ( 4.8%)
-Stage 3 - Non-Max Suppression:     2.751 ms  ( 1.7%)
-Stage 4 - Double Threshold:        1.103 ms  ( 0.7%)
-Stage 5 - Hysteresis Tracking:     1.404 ms  ( 0.9%)
-Total:                           159.768 ms
+  Stage 1 - Gaussian Blur:   32.604 ms  (49.6%)
+  Stage 2a- Sobel Gx/Gy:      3.327 ms  ( 5.1%)
+  Stage 2b- Magnitude:        23.001 ms  (35.0%)
+  Stage 2c- Direction:         2.120 ms  ( 3.2%)
+  Stage 3 - Non-Max Supp:      2.321 ms  ( 3.5%)
+  Stage 4 - Double Thresh:     1.193 ms  ( 1.8%)
+  Stage 5 - Hysteresis:        1.136 ms  ( 1.7%)
+  Total:                      65.702 ms
 
 VLEN=512:
-Stage 1 - Gaussian Blur:          58.622 ms  (35.6%)
-Stage 2a- Sobel Gx/Gy:            25.313 ms  (15.4%)
-Stage 2b- Magnitude:              67.591 ms  (41.0%)
-Stage 2c- Direction:               7.981 ms  ( 4.8%)
-Stage 3 - Non-Max Suppression:     2.818 ms  ( 1.7%)
-Stage 4 - Double Threshold:        1.095 ms  ( 0.7%)
-Stage 5 - Hysteresis Tracking:     1.463 ms  ( 0.9%)
-Total:                           164.882 ms
+  Stage 1 - Gaussian Blur:   33.113 ms  (50.8%)
+  Stage 2a- Sobel Gx/Gy:      3.304 ms  ( 5.1%)
+  Stage 2b- Magnitude:        22.193 ms  (34.0%)
+  Stage 2c- Direction:         2.045 ms  ( 3.1%)
+  Stage 3 - Non-Max Supp:      2.235 ms  ( 3.4%)
+  Stage 4 - Double Thresh:     1.162 ms  ( 1.8%)
+  Stage 5 - Hysteresis:        1.129 ms  ( 1.7%)
+  Total:                      65.181 ms
 
 Hotspot Analysis:
-- Magnitude is the biggest hotspot (~42% of total runtime)
-- Gaussian Blur is second (~34% of total runtime)
-- Sobel Gx/Gy is third (~15% of total runtime)
-- Together they account for 91% of total pipeline time
-- These three stages are the primary targets for RVV optimization in Phase 6
+  - Gaussian Blur is biggest hotspot (~50% of total runtime)
+  - Magnitude is second (~34% of total runtime)
+  - Together they account for ~84% of total pipeline time
+  - These two stages are the primary targets for RVV optimization in Phase 6
+  - Note: VLEN has minimal effect on scalar code (no RVV intrinsics yet)
+EOF
