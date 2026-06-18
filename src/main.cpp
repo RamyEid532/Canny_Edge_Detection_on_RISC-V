@@ -147,7 +147,7 @@ int main(int argc, char* argv[]) {
     image last_thresh = allocate_image(width, height);
     for (int i = 0; i < ITERS; i++) {
         double s = now_ns();
-        image t = double_threshold(last_nms, 50, 150);
+        image t = double_threshold(last_nms, 3, 15);
         t_thresh += now_ns() - s;
         if (i == ITERS - 1) {
             free_image(last_thresh);
