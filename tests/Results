@@ -8,14 +8,14 @@ Running host tests natively...
 [----------] Global test environment set-up.
 [----------] 4 tests from GaussianTest
 [ RUN      ] GaussianTest.UniformImageInvariant
-[       OK ] GaussianTest.UniformImageInvariant (1 ms)
+[       OK ] GaussianTest.UniformImageInvariant (0 ms)
 [ RUN      ] GaussianTest.AllBlackStaysBlack
 [       OK ] GaussianTest.AllBlackStaysBlack (0 ms)
 [ RUN      ] GaussianTest.DimensionsPreserved
-[       OK ] GaussianTest.DimensionsPreserved (1 ms)
+[       OK ] GaussianTest.DimensionsPreserved (0 ms)
 [ RUN      ] GaussianTest.ImpulseResponse
 [       OK ] GaussianTest.ImpulseResponse (0 ms)
-[----------] 4 tests from GaussianTest (4 ms total)
+[----------] 4 tests from GaussianTest (2 ms total)
 
 [----------] 5 tests from SobelTest
 [ RUN      ] SobelTest.ZeroGradientOnUniformImage
@@ -28,7 +28,7 @@ Running host tests natively...
 [       OK ] SobelTest.BothMagnitudesNonZero (0 ms)
 [ RUN      ] SobelTest.RandomImageOutputInRange
 [       OK ] SobelTest.RandomImageOutputInRange (0 ms)
-[----------] 5 tests from SobelTest (2 ms total)
+[----------] 5 tests from SobelTest (1 ms total)
 
 [----------] 4 tests from DirectionTest
 [ RUN      ] DirectionTest.VerticalEdgeGivesDirection0
@@ -89,5 +89,7 @@ Running host tests natively...
 [----------] 7 tests from HysteresisTest (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 32 tests from 6 test suites ran. (11 ms total)
+[==========] 32 tests from 6 test suites ran. (7 ms total)
 [  PASSED  ] 32 tests.
+[1]-  Done                    eog output.png
+[2]+  Done                    eog reference.png

@@ -1,54 +1,72 @@
-Canny Edge Detection on RISC-V - Phase 4 Optimization Sweep Results
-Image: 512x512 | Warmup: 20 | Iterations: 200
-======================================================================
+cat > risc_v_optimization_results.txt << 'EOF'
+RISC-V Compiler Optimization Sweep Results
+===========================================
+Toolchain: riscv64-unknown-elf-g++
+Image: 512x512 (generated rectangle) | Warmup: 20 | Iterations: 200
+VLEN: 128
 
-Per-Stage Timing (ms)
-----------------------------------------------------------------------
-Stage                        -O0       -O2       -O3       -Os       -Ofast
-----------------------------------------------------------------------
-Stage 1 - Gaussian Blur      37.302    10.349     4.195    13.141     4.343
-Stage 2a- Sobel Gx/Gy        15.730     4.381     1.080     5.292     1.110
-Stage 2b- Magnitude           6.082     1.404     1.518     7.629     1.344
-Stage 2c- Direction           1.180     0.544     0.585     0.967     0.664
-Stage 3 - Non-Max Suppress    1.532     0.571     0.616     0.639     0.511
-Stage 4 - Double Threshold    0.550     0.220     0.249     0.238     0.251
-Stage 5 - Hysteresis          0.768     0.230     0.248     0.292     0.294
-----------------------------------------------------------------------
-Total Pipeline (ms)          63.144    17.699     8.490    28.198     8.516
-----------------------------------------------------------------------
+=== O0 ===
+  Binary Size:              455976 bytes (445.3 KB)
+  Stage 1 - Gaussian Blur:   99.777 ms  (44.9%)
+  Stage 2a- Sobel Gx/Gy:     40.904 ms  (18.4%)
+  Stage 2b- Magnitude:        66.924 ms  (30.1%)
+  Stage 2c- Direction:         7.394 ms  ( 3.3%)
+  Stage 3 - Non-Max Supp:      3.810 ms  ( 1.7%)
+  Stage 4 - Double Thresh:     1.524 ms  ( 0.7%)
+  Stage 5 - Hysteresis:        1.921 ms  ( 0.9%)
+  Total Pipeline:            222.254 ms
 
-Per-Stage Percentage Breakdown (%)
-----------------------------------------------------------------------
-Stage                        -O0       -O2       -O3       -Os       -Ofast
-----------------------------------------------------------------------
-Stage 1 - Gaussian Blur       59.1      58.5      49.4      46.6      51.0
-Stage 2a- Sobel Gx/Gy         24.9      24.8      12.7      18.8      13.0
-Stage 2b- Magnitude            9.6       7.9      17.9      27.1      15.8
-Stage 2c- Direction            1.9       3.1       6.9       3.4       7.8
-Stage 3 - Non-Max Suppress     2.4       3.2       7.3       2.3       6.0
-Stage 4 - Double Threshold     0.9       1.2       2.9       0.8       2.9
-Stage 5 - Hysteresis           1.2       1.3       2.9       1.0       3.4
-----------------------------------------------------------------------
+=== O2 ===
+  Binary Size:              463768 bytes (452.9 KB)
+  Stage 1 - Gaussian Blur:   28.949 ms  (44.4%)
+  Stage 2a- Sobel Gx/Gy:     13.596 ms  (20.9%)
+  Stage 2b- Magnitude:        17.090 ms  (26.2%)
+  Stage 2c- Direction:         1.702 ms  ( 2.6%)
+  Stage 3 - Non-Max Supp:      1.847 ms  ( 2.8%)
+  Stage 4 - Double Thresh:     0.910 ms  ( 1.4%)
+  Stage 5 - Hysteresis:        1.085 ms  ( 1.7%)
+  Total Pipeline:             65.180 ms
 
-Binary Size
-----------------------------------------------------------------------
-Flag        Size (bytes)    Size (KB)
-----------------------------------------------------------------------
--O0         27336           26.7 KB
--O2         21944           21.4 KB
--O3         25920           25.3 KB
--Os         21920           21.4 KB
--Ofast      27464           26.8 KB
-----------------------------------------------------------------------
+=== O3 ===
+  Binary Size:              484048 bytes (472.7 KB)
+  Stage 1 - Gaussian Blur:   25.225 ms  (50.1%)
+  Stage 2a- Sobel Gx/Gy:      2.565 ms  ( 5.1%)
+  Stage 2b- Magnitude:        17.318 ms  (34.4%)
+  Stage 2c- Direction:         1.724 ms  ( 3.4%)
+  Stage 3 - Non-Max Supp:      1.752 ms  ( 3.5%)
+  Stage 4 - Double Thresh:     0.902 ms  ( 1.8%)
+  Stage 5 - Hysteresis:        0.835 ms  ( 1.7%)
+  Total Pipeline:             50.322 ms
 
-Speedup vs -O0
-----------------------------------------------------------------------
-Flag        Total (ms)    Speedup
-----------------------------------------------------------------------
--O0          63.144        1.00x
--O2          17.699        3.57x
--O3           8.490        7.44x
--Os          28.198        2.24x
--Ofast        8.516        7.41x
-----------------------------------------------------------------------
+=== Os ===
+  Binary Size:              460400 bytes (449.6 KB)
+  Stage 1 - Gaussian Blur:   33.918 ms  (37.7%)
+  Stage 2a- Sobel Gx/Gy:     12.072 ms  (13.4%)
+  Stage 2b- Magnitude:        37.403 ms  (41.6%)
+  Stage 2c- Direction:         2.122 ms  ( 2.4%)
+  Stage 3 - Non-Max Supp:      2.121 ms  ( 2.4%)
+  Stage 4 - Double Thresh:     1.085 ms  ( 1.2%)
+  Stage 5 - Hysteresis:        1.182 ms  ( 1.3%)
+  Total Pipeline:             89.903 ms
 
+=== Ofast ===
+  Binary Size:              483928 bytes (472.6 KB)
+  Stage 1 - Gaussian Blur:   25.325 ms  (41.0%)
+  Stage 2a- Sobel Gx/Gy:      2.582 ms  ( 4.2%)
+  Stage 2b- Magnitude:        28.558 ms  (46.3%)
+  Stage 2c- Direction:         1.654 ms  ( 2.7%)
+  Stage 3 - Non-Max Supp:      1.832 ms  ( 3.0%)
+  Stage 4 - Double Thresh:     0.917 ms  ( 1.5%)
+  Stage 5 - Hysteresis:        0.842 ms  ( 1.4%)
+  Total Pipeline:             61.709 ms
+
+Summary Table:
+===========================================
+Flag    | Total (ms) | Binary (KB) | Speedup vs O0
+--------|------------|-------------|---------------
+-O0     |  222.254   |   445.3     |   1.0x
+-O2     |   65.180   |   452.9     |   3.4x
+-O3     |   50.322   |   472.7     |   4.4x
+-Os     |   89.903   |   449.6     |   2.5x
+-Ofast  |   61.709   |   472.6     |   3.6x
+EOF

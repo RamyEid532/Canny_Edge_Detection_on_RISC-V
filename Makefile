@@ -36,6 +36,13 @@ ALL_SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 # 2. Filter out main.cpp so we don't get "multiple definition of main" in tests
 CORE_SRCS = $(filter-out $(SRC_DIR)/main.cpp, $(ALL_SRCS))
 
+# 3. syscalls.cpp implements newlib's bare-metal stubs (_write, _read, _open,
+#    _sbrk, ...). The HOST build uses glibc, which already defines all of
+#    these — linking syscalls.cpp into the host tests causes
+#    "multiple definition of `_write'" (and friends) errors. So we build a
+#    SEPARATE source list for the host that excludes it.
+HOST_CORE_SRCS = $(filter-out $(SRC_DIR)/syscalls.cpp, $(CORE_SRCS))
+
 RV_MAIN = $(SRC_DIR)/main.cpp
 TEST_MAIN = $(TEST_DIR)/unit_tests.cpp
 
@@ -50,13 +57,15 @@ test: $(HOST_BUILD)/host_tests
 	@echo "Running host tests natively..."
 	./$(HOST_BUILD)/host_tests
 
-$(HOST_BUILD)/host_tests: $(TEST_MAIN) $(CORE_SRCS)
+$(HOST_BUILD)/host_tests: $(TEST_MAIN) $(HOST_CORE_SRCS)
 	@mkdir -p $(HOST_BUILD)
 	$(HOST_CXX) $(HOST_CXXFLAGS) $^ $(HOST_LDFLAGS) -o $@
 
 canny_rv: $(RV_BUILD)/canny_rv
 	@echo "RISC-V binary built at $(RV_BUILD)/canny_rv"
 
+# CORE_SRCS here DOES include syscalls.cpp — the RISC-V binary needs it
+# to bridge newlib calls to QEMU's Linux syscalls.
 $(RV_BUILD)/canny_rv: $(RV_MAIN) $(CORE_SRCS)
 	@mkdir -p $(RV_BUILD)
 	$(RV_CXX) $(RV_CXXFLAGS) $^ -o $@
