@@ -1,72 +1,64 @@
-cat > risc_v_optimization_results.txt << 'EOF'
-RISC-V Compiler Optimization Sweep Results
-===========================================
-Toolchain: riscv64-unknown-elf-g++
-Image: 512x512 (generated rectangle) | Warmup: 20 | Iterations: 200
-VLEN: 128
+Canny Edge Detection on RISC-V - Phase 4 Optimization Sweep (RISC-V on QEMU)
+Image: 512x512 | Warmup: 20 | Iterations: 200 | VLEN=128
+Compiler: riscv64-unknown-elf-g++ | Architecture: rv64gcv | ABI: lp64d
+======================================================================
 
-=== O0 ===
-  Binary Size:              455976 bytes (445.3 KB)
-  Stage 1 - Gaussian Blur:   99.777 ms  (44.9%)
-  Stage 2a- Sobel Gx/Gy:     40.904 ms  (18.4%)
-  Stage 2b- Magnitude:        66.924 ms  (30.1%)
-  Stage 2c- Direction:         7.394 ms  ( 3.3%)
-  Stage 3 - Non-Max Supp:      3.810 ms  ( 1.7%)
-  Stage 4 - Double Thresh:     1.524 ms  ( 0.7%)
-  Stage 5 - Hysteresis:        1.921 ms  ( 0.9%)
-  Total Pipeline:            222.254 ms
+Per-Stage Timing (ms)
+----------------------------------------------------------------------
+Stage                        -O0       -O2       -O3       -Os       -Ofast
+----------------------------------------------------------------------
+Stage 1 - Gaussian Blur      96.565    32.181    33.490    43.576    31.949
+Stage 2a- Sobel Gx/Gy        43.757    17.287     3.415    16.408     3.368
+Stage 2b- Magnitude          85.018    22.094    23.282    62.379    36.787
+Stage 2c- Direction           9.231     2.173     2.253     2.674     2.162
+Stage 3 - Non-Max Suppress    4.878     2.411     2.461     2.742     2.285
+Stage 4 - Double Threshold    2.091     1.278     1.345     1.413     1.192
+Stage 5 - Hysteresis          2.622     1.500     1.117     1.526     1.063
+----------------------------------------------------------------------
+Total Pipeline (ms)         244.162    78.925    67.363   130.718    78.807
+----------------------------------------------------------------------
 
-=== O2 ===
-  Binary Size:              463768 bytes (452.9 KB)
-  Stage 1 - Gaussian Blur:   28.949 ms  (44.4%)
-  Stage 2a- Sobel Gx/Gy:     13.596 ms  (20.9%)
-  Stage 2b- Magnitude:        17.090 ms  (26.2%)
-  Stage 2c- Direction:         1.702 ms  ( 2.6%)
-  Stage 3 - Non-Max Supp:      1.847 ms  ( 2.8%)
-  Stage 4 - Double Thresh:     0.910 ms  ( 1.4%)
-  Stage 5 - Hysteresis:        1.085 ms  ( 1.7%)
-  Total Pipeline:             65.180 ms
+Per-Stage Percentage Breakdown (%)
+----------------------------------------------------------------------
+Stage                        -O0       -O2       -O3       -Os       -Ofast
+----------------------------------------------------------------------
+Stage 1 - Gaussian Blur       39.5      40.8      49.7      33.3      40.5
+Stage 2a- Sobel Gx/Gy         17.9      21.9       5.1      12.6       4.3
+Stage 2b- Magnitude           34.8      28.0      34.6      47.7      46.7
+Stage 2c- Direction            3.8       2.8       3.3       2.0       2.7
+Stage 3 - Non-Max Suppress     2.0       3.1       3.7       2.1       2.9
+Stage 4 - Double Threshold     0.9       1.6       2.0       1.1       1.5
+Stage 5 - Hysteresis           1.1       1.9       1.7       1.2       1.3
+----------------------------------------------------------------------
 
-=== O3 ===
-  Binary Size:              484048 bytes (472.7 KB)
-  Stage 1 - Gaussian Blur:   25.225 ms  (50.1%)
-  Stage 2a- Sobel Gx/Gy:      2.565 ms  ( 5.1%)
-  Stage 2b- Magnitude:        17.318 ms  (34.4%)
-  Stage 2c- Direction:         1.724 ms  ( 3.4%)
-  Stage 3 - Non-Max Supp:      1.752 ms  ( 3.5%)
-  Stage 4 - Double Thresh:     0.902 ms  ( 1.8%)
-  Stage 5 - Hysteresis:        0.835 ms  ( 1.7%)
-  Total Pipeline:             50.322 ms
+Binary Size
+----------------------------------------------------------------------
+Flag        Size (bytes)    Size (KB)
+----------------------------------------------------------------------
+-O0         455976          445.3 KB
+-O2         463768          452.9 KB
+-O3         484024          472.7 KB
+-Os         460392          449.6 KB
+-Ofast      483928          472.6 KB
+----------------------------------------------------------------------
 
-=== Os ===
-  Binary Size:              460400 bytes (449.6 KB)
-  Stage 1 - Gaussian Blur:   33.918 ms  (37.7%)
-  Stage 2a- Sobel Gx/Gy:     12.072 ms  (13.4%)
-  Stage 2b- Magnitude:        37.403 ms  (41.6%)
-  Stage 2c- Direction:         2.122 ms  ( 2.4%)
-  Stage 3 - Non-Max Supp:      2.121 ms  ( 2.4%)
-  Stage 4 - Double Thresh:     1.085 ms  ( 1.2%)
-  Stage 5 - Hysteresis:        1.182 ms  ( 1.3%)
-  Total Pipeline:             89.903 ms
+Speedup vs -O0
+----------------------------------------------------------------------
+Flag        Total (ms)    Speedup
+----------------------------------------------------------------------
+-O0          244.162       1.00x
+-O2           78.925       3.09x
+-O3           67.363       3.62x
+-Os          130.718       1.87x
+-Ofast        78.807       3.10x
+----------------------------------------------------------------------
 
-=== Ofast ===
-  Binary Size:              483928 bytes (472.6 KB)
-  Stage 1 - Gaussian Blur:   25.325 ms  (41.0%)
-  Stage 2a- Sobel Gx/Gy:      2.582 ms  ( 4.2%)
-  Stage 2b- Magnitude:        28.558 ms  (46.3%)
-  Stage 2c- Direction:         1.654 ms  ( 2.7%)
-  Stage 3 - Non-Max Supp:      1.832 ms  ( 3.0%)
-  Stage 4 - Double Thresh:     0.917 ms  ( 1.5%)
-  Stage 5 - Hysteresis:        0.842 ms  ( 1.4%)
-  Total Pipeline:             61.709 ms
-
-Summary Table:
-===========================================
-Flag    | Total (ms) | Binary (KB) | Speedup vs O0
---------|------------|-------------|---------------
--O0     |  222.254   |   445.3     |   1.0x
--O2     |   65.180   |   452.9     |   3.4x
--O3     |   50.322   |   472.7     |   4.4x
--Os     |   89.903   |   449.6     |   2.5x
--Ofast  |   61.709   |   472.6     |   3.6x
-EOF
+Key Observations
+----------------------------------------------------------------------
+- Best performance: -O3 (67.363 ms, 3.62x speedup over -O0)
+- Smallest binary: -O0 (455976 bytes) -- Os did not produce smallest here
+- -O3 vs -Ofast: nearly identical total time (67.363 vs 78.807 ms)
+- Sobel Gx/Gy: biggest gain from -O2 to -O3 (17.287 -> 3.415 ms, 5x)
+- Magnitude: -Os performs worst (62.379 ms vs 22.094 ms at -O2)
+- Gaussian Blur dominates at all optimization levels (33-50% of runtime)
+----------------------------------------------------------------------

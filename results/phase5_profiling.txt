@@ -1,45 +1,77 @@
-cat > phase5_profiling_riscv.txt << 'EOF'
-Phase 5 - Profiling and Hotspot Identification (RISC-V)
-========================================================
-Toolchain: riscv64-unknown-elf-g++
-Image: 512x512 (generated rectangle) | Warmup: 20 | Iterations: 200
-Scalar Baseline (-O3) | Binary Size: 484080 bytes (472.7 KB)
-========================================================
+RISC-V binary built at build/rv/canny_rv
+=== VLEN=128 ===
+-rwxrwxr-x 1 khaled-abdeluziz khaled-abdeluziz 484056 Jun 18 18:29 build/rv/canny_rv
+RISC-V binary built at build/rv/canny_rv
+Executing on QEMU with VLEN=128...
+qemu-riscv64 -cpu rv64,v=true,vlen=128 build/rv/canny_rv 
+vector version is not specified, use the default value v1.0
+Using generated rectangle image.
+Canny Edge Detection - Per-Stage Timing
+Image: 512x512 | Warmup: 20 | Iterations: 200
+==========================================
+Saving output: 512x512
+Data ptr: 0x3bab80
 
-VLEN=128:
-  Stage 1 - Gaussian Blur:   33.092 ms  (49.9%)
-  Stage 2a- Sobel Gx/Gy:      3.413 ms  ( 5.1%)
-  Stage 2b- Magnitude:        22.986 ms  (34.7%)
-  Stage 2c- Direction:         2.141 ms  ( 3.2%)
-  Stage 3 - Non-Max Supp:      2.401 ms  ( 3.6%)
-  Stage 4 - Double Thresh:     1.171 ms  ( 1.8%)
-  Stage 5 - Hysteresis:        1.096 ms  ( 1.7%)
-  Total:                      66.300 ms
+Per-Stage Breakdown:
+------------------------------------------
+Stage 1 - Gaussian Blur:          32.674 ms  (50.3%)
+Stage 2a- Sobel Gx/Gy:             3.194 ms  ( 4.9%)
+Stage 2b- Magnitude:              22.309 ms  (34.4%)
+Stage 2c- Direction:               2.134 ms  ( 3.3%)
+Stage 3 - Non-Max Suppression:     2.331 ms  ( 3.6%)
+Stage 4 - Double Threshold:        1.245 ms  ( 1.9%)
+Stage 5 - Hysteresis Tracking:     1.032 ms  ( 1.6%)
+------------------------------------------
+Total Pipeline:                   64.919 ms
+==========================================
+=== VLEN=256 ===
+-rwxrwxr-x 1 khaled-abdeluziz khaled-abdeluziz 484056 Jun 18 18:29 build/rv/canny_rv
+RISC-V binary built at build/rv/canny_rv
+Executing on QEMU with VLEN=256...
+qemu-riscv64 -cpu rv64,v=true,vlen=256 build/rv/canny_rv 
+vector version is not specified, use the default value v1.0
+Using generated rectangle image.
+Canny Edge Detection - Per-Stage Timing
+Image: 512x512 | Warmup: 20 | Iterations: 200
+==========================================
+Saving output: 512x512
+Data ptr: 0x3bab80
 
-VLEN=256:
-  Stage 1 - Gaussian Blur:   32.604 ms  (49.6%)
-  Stage 2a- Sobel Gx/Gy:      3.327 ms  ( 5.1%)
-  Stage 2b- Magnitude:        23.001 ms  (35.0%)
-  Stage 2c- Direction:         2.120 ms  ( 3.2%)
-  Stage 3 - Non-Max Supp:      2.321 ms  ( 3.5%)
-  Stage 4 - Double Thresh:     1.193 ms  ( 1.8%)
-  Stage 5 - Hysteresis:        1.136 ms  ( 1.7%)
-  Total:                      65.702 ms
+Per-Stage Breakdown:
+------------------------------------------
+Stage 1 - Gaussian Blur:          32.232 ms  (49.6%)
+Stage 2a- Sobel Gx/Gy:             3.275 ms  ( 5.0%)
+Stage 2b- Magnitude:              22.857 ms  (35.2%)
+Stage 2c- Direction:               2.139 ms  ( 3.3%)
+Stage 3 - Non-Max Suppression:     2.278 ms  ( 3.5%)
+Stage 4 - Double Threshold:        1.179 ms  ( 1.8%)
+Stage 5 - Hysteresis Tracking:     1.056 ms  ( 1.6%)
+------------------------------------------
+Total Pipeline:                   65.016 ms
+==========================================
+=== VLEN=512 ===
+-rwxrwxr-x 1 khaled-abdeluziz khaled-abdeluziz 484056 Jun 18 18:29 build/rv/canny_rv
+RISC-V binary built at build/rv/canny_rv
+Executing on QEMU with VLEN=512...
+qemu-riscv64 -cpu rv64,v=true,vlen=512 build/rv/canny_rv 
+vector version is not specified, use the default value v1.0
+Using generated rectangle image.
+Canny Edge Detection - Per-Stage Timing
+Image: 512x512 | Warmup: 20 | Iterations: 200
+==========================================
+Saving output: 512x512
+Data ptr: 0x3bab80
 
-VLEN=512:
-  Stage 1 - Gaussian Blur:   33.113 ms  (50.8%)
-  Stage 2a- Sobel Gx/Gy:      3.304 ms  ( 5.1%)
-  Stage 2b- Magnitude:        22.193 ms  (34.0%)
-  Stage 2c- Direction:         2.045 ms  ( 3.1%)
-  Stage 3 - Non-Max Supp:      2.235 ms  ( 3.4%)
-  Stage 4 - Double Thresh:     1.162 ms  ( 1.8%)
-  Stage 5 - Hysteresis:        1.129 ms  ( 1.7%)
-  Total:                      65.181 ms
+Per-Stage Breakdown:
+------------------------------------------
+Stage 1 - Gaussian Blur:          33.961 ms  (50.9%)
+Stage 2a- Sobel Gx/Gy:             3.232 ms  ( 4.8%)
+Stage 2b- Magnitude:              22.819 ms  (34.2%)
+Stage 2c- Direction:               2.147 ms  ( 3.2%)
+Stage 3 - Non-Max Suppression:     2.247 ms  ( 3.4%)
+Stage 4 - Double Threshold:        1.274 ms  ( 1.9%)
+Stage 5 - Hysteresis Tracking:     1.082 ms  ( 1.6%)
+------------------------------------------
+Total Pipeline:                   66.763 ms
+==========================================
 
-Hotspot Analysis:
-  - Gaussian Blur is biggest hotspot (~50% of total runtime)
-  - Magnitude is second (~34% of total runtime)
-  - Together they account for ~84% of total pipeline time
-  - These two stages are the primary targets for RVV optimization in Phase 6
-  - Note: VLEN has minimal effect on scalar code (no RVV intrinsics yet)
-EOF
