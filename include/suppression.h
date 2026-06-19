@@ -14,5 +14,6 @@ image non_maximum_suppression(
     const image& direction
 );
 
+image non_maximum_suppression_rvv(const image& magnitude, const image& direction);
 
 #endif
