@@ -17,41 +17,41 @@ Input Image (.raw)
       ▼
 ┌──────────────────────────────────────────────────────────┐
 │  Stage 1 — Gaussian Blur (5×5)                           │
-│  Smooths the image to suppress noise before edge finding  │
-│  Integer kernel (σ≈1.0, sum=273), zero-padding boundary   │
+│  Smooths the image to suppress noise before edge finding │
+│  Integer kernel (σ≈1.0, sum=273), zero-padding boundary  │
 │  int32 accumulator prevents overflow  ·  Scalar + RVV    │
 └───────────────────────────┬──────────────────────────────┘
                             ▼
-┌──────────────────────────────────────────────────────────┐
-│  Stage 2 — Sobel Gradient (Gx / Gy)                      │
-│  Two 3×3 kernels detect horizontal and vertical edges     │
-│  Structure-of-Arrays layout (int16_t) for fast RVV loads  │
+┌───────────────────────────────────────────────────────────────┐
+│  Stage 2 — Sobel Gradient (Gx / Gy)                           │
+│  Two 3×3 kernels detect horizontal and vertical edges         │
+│  Structure-of-Arrays layout (int16_t) for fast RVV loads      │
 │  Direction quantized to {0°, 45°, 90°, 135°}  ·  Scalar + RVV │
-└───────────────────────────┬──────────────────────────────┘
+└───────────────────────────┬───────────────────────────────────┘
                             ▼
 ┌──────────────────────────────────────────────────────────┐
-│  Stage 2b — Gradient Magnitude                            │
+│  Stage 2b — Gradient Magnitude                           │
 │  L1 norm: |Gx|+|Gy|  (integer, fast)                     │
 │  L2 norm: √(Gx²+Gy²) (float, precise)                    │
 │  Two-pass normalization to [0,255]  ·  Scalar + RVV      │
 └───────────────────────────┬──────────────────────────────┘
                             ▼
-┌──────────────────────────────────────────────────────────┐
-│  Stage 3 — Non-Maximum Suppression                        │
-│  Thins edges to single-pixel width using gradient direction│
-│  Compares each pixel to its two directional neighbors     │
-│  Scalar + RVV (vectorized neighbor select via masks)      │
-└───────────────────────────┬──────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  Stage 3 — Non-Maximum Suppression                          │
+│  Thins edges to single-pixel width using gradient direction │
+│  Compares each pixel to its two directional neighbors       │
+│  Scalar + RVV (vectorized neighbor select via masks)        │
+└───────────────────────────┬─────────────────────────────────┘
                             ▼
 ┌──────────────────────────────────────────────────────────┐
-│  Stage 4 — Double Thresholding                            │
+│  Stage 4 — Double Thresholding                           │
 │  STRONG (255) / WEAK (75) / NO_EDGE (0) classification   │
-│  Scalar + RVV (vmsgeu masks + vmerge, fully vectorized)   │
+│  Scalar + RVV (vmsgeu masks + vmerge, fully vectorized)  │
 └───────────────────────────┬──────────────────────────────┘
                             ▼
 ┌──────────────────────────────────────────────────────────┐
-│  Stage 5 — Hysteresis Edge Tracking                       │
-│  DFS flood-fill promotes weak edges connected to strong   │
+│  Stage 5 — Hysteresis Edge Tracking                      │
+│  DFS flood-fill promotes weak edges connected to strong  │
 │  Isolated weak edges removed  ·  Scalar + partial RVV    │
 └───────────────────────────┬──────────────────────────────┘
                             ▼
@@ -293,6 +293,52 @@ All measurements: 512×512 image, 20 warmup + 200 timed iterations, QEMU VLEN=12
 - Sobel gained 5× from `-O2`→`-O3`, the largest single jump, likely from loop unrolling
 - `-Os` performs worse than `-O2` on Magnitude (62 ms vs 22 ms) — size optimization trades away vectorization opportunities
 - Auto-vectorization report: **0 loops auto-vectorized** — boundary checks and control flow in every inner loop block the compiler. This directly motivates Phase 6
+
+---
+
+## Phase 4 — Auto-Vectorization Analysis
+
+**Compiler:** `riscv64-unknown-elf-g++`  
+**Flags:** `-O3 -ftree-vectorize -fopt-info-vec-all`  
+**Image:** 512×512 | Warmup: 20 | Iterations: 200 | VLEN=128
+
+### Result: 0 loops auto-vectorized
+
+The compiler could not vectorize a single loop in the scalar pipeline. Every inner loop has at least one of:
+
+| Reason | Affected file | Explanation |
+|--------|--------------|-------------|
+| `latch block not empty` | `main.cpp` | Timing loops with statements after the back-edge |
+| `statement clobbers memory` | `main.cpp` | `chrono::now()` inside the loop body |
+| `unsupported control flow in loop` | `main.cpp` | `fill_rectangle` boundary check |
+| Nested loops with boundary checks | `gaussian.cpp` | `if (r >= 0 && r < H && ...)` inside inner loop |
+| Conditional branches in inner loop | `sobel.cpp` | Per-pixel zero-padding check |
+
+### Performance with `-fopt-info-vec-all` flags (scalar only)
+
+| Stage | Time |
+|-------|------|
+| Gaussian Blur | 75.5 ms |
+| Sobel Gx/Gy | 35.3 ms |
+| Magnitude | 56.2 ms |
+| Direction | 2.0 ms |
+| NMS | 8.2 ms |
+| Threshold | 1.5 ms |
+| Hysteresis | 2.2 ms |
+| **Total** | **180.9 ms** |
+
+This is **2.7× slower** than plain `-O3` (67.4 ms). Adding `-fopt-info-vec-all` does not enable more vectorization — it only adds reporting overhead. The compiler was already trying `ftree-vectorize` under `-O3`; the extra flag just makes the failures visible in the output.
+
+### Vector instruction count in the final binary
+
+```bash
+riscv64-unknown-elf-objdump -d build/rv/canny_rv | grep -c vset
+# → 395
+```
+
+All 395 `vset` instructions come from the manual RVV intrinsic functions (`gaussian_rvv`, `sobel_rvv`, etc.). The compiler contributed zero. This confirms that without manual intrinsics, our pipeline would run entirely in scalar mode on the RISC-V vector unit — justifying every line written in Phase 6.
+
+---
 
 ### Phase 5 — Profiling Breakdown (scalar at -O3)
 
