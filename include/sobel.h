@@ -35,4 +35,10 @@ void compute_direction(int16_t* Gx, int16_t* Gy, int size, image& direction);
 
 void free_sobel_result(sobel_result& result);
 
+// RVV versions
+void compute_gxgy_rvv(const image& input, int16_t* Gx, int16_t* Gy);
+void compute_magnitude_rvv(int16_t* Gx, int16_t* Gy, int size,
+                            image& mag_l1, image& mag_l2);
+void compute_direction_rvv(int16_t* Gx, int16_t* Gy, int size, image& direction);
+
 #endif

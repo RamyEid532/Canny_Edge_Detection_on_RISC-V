@@ -27,4 +27,5 @@ image hysteresis_tracking(
     const image& thresholded
 );
 
+image hysteresis_tracking_rvv(const image& thresholded);
 #endif // HYSTERESIS_H

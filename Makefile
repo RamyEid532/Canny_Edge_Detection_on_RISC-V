@@ -41,7 +41,9 @@ CORE_SRCS = $(filter-out $(SRC_DIR)/main.cpp, $(ALL_SRCS))
 #    these — linking syscalls.cpp into the host tests causes
 #    "multiple definition of `_write'" (and friends) errors. So we build a
 #    SEPARATE source list for the host that excludes it.
-HOST_CORE_SRCS = $(filter-out $(SRC_DIR)/syscalls.cpp, $(CORE_SRCS))
+
+HOST_CORE_SRCS = $(filter-out $(SRC_DIR)/syscalls.cpp $(SRC_DIR)/gaussian_rvv.cpp $(SRC_DIR)/sobel_rvv.cpp $(SRC_DIR)/suppression_rvv.cpp $(SRC_DIR)/thresholding_rvv.cpp $(SRC_DIR)/hysteresis_rvv.cpp, $(CORE_SRCS))
+
 
 RV_MAIN = $(SRC_DIR)/main.cpp
 TEST_MAIN = $(TEST_DIR)/unit_tests.cpp

@@ -21,5 +21,5 @@ image double_threshold(
     uint8_t high_threshold
 );
 
-
+image double_threshold_rvv(const image& nms_image, uint8_t low, uint8_t high);
 #endif
