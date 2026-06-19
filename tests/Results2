@@ -1,0 +1,34 @@
+RISC-V equivalence test built
+=== VLEN=128 ===
+vector version is not specified, use the default value v1.0
+Equivalence Tests: Scalar vs RVV
+Image: 100x75 (non-power-of-two)
+==========================================
+[PASS] Gaussian Blur: outputs match within ±1
+[PASS] Sobel Gx: 0 pixels differ
+[PASS] Sobel Gy: 0 pixels differ
+[PASS] Magnitude L1: outputs match within ±3
+==========================================
+ALL TESTS PASSED — Code is vector-length-agnostic ✓
+=== VLEN=256 ===
+vector version is not specified, use the default value v1.0
+Equivalence Tests: Scalar vs RVV
+Image: 100x75 (non-power-of-two)
+==========================================
+[PASS] Gaussian Blur: outputs match within ±1
+[PASS] Sobel Gx: 0 pixels differ
+[PASS] Sobel Gy: 0 pixels differ
+[PASS] Magnitude L1: outputs match within ±3
+==========================================
+ALL TESTS PASSED — Code is vector-length-agnostic ✓
+=== VLEN=512 ===
+vector version is not specified, use the default value v1.0
+Equivalence Tests: Scalar vs RVV
+Image: 100x75 (non-power-of-two)
+==========================================
+[PASS] Gaussian Blur: outputs match within ±1
+[PASS] Sobel Gx: 0 pixels differ
+[PASS] Sobel Gy: 0 pixels differ
+[PASS] Magnitude L1: outputs match within ±3
+==========================================
+ALL TESTS PASSED — Code is vector-length-agnostic ✓

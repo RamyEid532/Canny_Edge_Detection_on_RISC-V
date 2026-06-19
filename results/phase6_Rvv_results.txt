@@ -1,64 +1,86 @@
-Canny Edge Detection on RISC-V - Phase 4 Optimization Sweep (RISC-V on QEMU)
-Image: 512x512 | Warmup: 20 | Iterations: 200 | VLEN=128
-Compiler: riscv64-unknown-elf-g++ | Architecture: rv64gcv | ABI: lp64d
-======================================================================
+Cleaning build directory...
+rm -rf build
+riscv64-unknown-elf-g++ -Wall -Wextra -std=c++17 -march=rv64gcv -mabi=lp64d -O3 -g -Iinclude --sysroot=/home/khaled-abdeluziz/riscv-toolchain/riscv64-unknown-elf src/main.cpp src/gaussian.cpp src/gaussian_rvv.cpp src/hysteresis.cpp src/hysteresis_rvv.cpp src/image_io.cpp src/sobel.cpp src/sobel_rvv.cpp src/suppression.cpp src/suppression_rvv.cpp src/syscalls.cpp src/thresholding.cpp src/thresholding_rvv.cpp -o build/rv/canny_rv
+RISC-V binary built at build/rv/canny_rv
+-rwxrwxr-x 1 khaled-abdeluziz khaled-abdeluziz 646400 Jun 19 22:13 build/rv/canny_rv
+=== VLEN=128 ===
+RISC-V binary built at build/rv/canny_rv
+Executing on QEMU with VLEN=128...
+qemu-riscv64 -cpu rv64,v=true,vlen=128 build/rv/canny_rv 
+vector version is not specified, use the default value v1.0
+Using generated rectangle image.
+Canny Edge Detection - Scalar vs RVV Timing
+Image: 512x512 | Warmup: 20 | Iterations: 200
+==========================================
+Saving output: 512x512
 
-Per-Stage Timing (ms)
-----------------------------------------------------------------------
-Stage                        -O0       -O2       -O3       -Os       -Ofast
-----------------------------------------------------------------------
-Stage 1 - Gaussian Blur      96.565    32.181    33.490    43.576    31.949
-Stage 2a- Sobel Gx/Gy        43.757    17.287     3.415    16.408     3.368
-Stage 2b- Magnitude          85.018    22.094    23.282    62.379    36.787
-Stage 2c- Direction           9.231     2.173     2.253     2.674     2.162
-Stage 3 - Non-Max Suppress    4.878     2.411     2.461     2.742     2.285
-Stage 4 - Double Threshold    2.091     1.278     1.345     1.413     1.192
-Stage 5 - Hysteresis          2.622     1.500     1.117     1.526     1.063
-----------------------------------------------------------------------
-Total Pipeline (ms)         244.162    78.925    67.363   130.718    78.807
-----------------------------------------------------------------------
+Scalar vs RVV Breakdown:
+----------------------------------------------------------
+Stage                  Scalar       RVV        Speedup
+----------------------------------------------------------
+Gaussian Blur:        13.706 ms  106.723 ms   0.13x
+Sobel Gx/Gy:           3.400 ms   42.653 ms   0.08x
+Magnitude:            22.146 ms   35.644 ms   0.62x
+Direction (scalar):    2.181 ms        -      N/A
+NMS:                   8.743 ms   27.398 ms   0.32x
+Double Threshold:      1.169 ms    9.885 ms   0.12x
+Hysteresis:            1.117 ms    9.072 ms   0.12x
+----------------------------------------------------------
+Total Scalar:         52.461 ms
+Total RVV:           233.554 ms
+Overall Speedup:     0.22x
+==========================================
+=== VLEN=256 ===
+RISC-V binary built at build/rv/canny_rv
+Executing on QEMU with VLEN=256...
+qemu-riscv64 -cpu rv64,v=true,vlen=256 build/rv/canny_rv 
+vector version is not specified, use the default value v1.0
+Using generated rectangle image.
+Canny Edge Detection - Scalar vs RVV Timing
+Image: 512x512 | Warmup: 20 | Iterations: 200
+==========================================
+Saving output: 512x512
 
-Per-Stage Percentage Breakdown (%)
-----------------------------------------------------------------------
-Stage                        -O0       -O2       -O3       -Os       -Ofast
-----------------------------------------------------------------------
-Stage 1 - Gaussian Blur       39.5      40.8      49.7      33.3      40.5
-Stage 2a- Sobel Gx/Gy         17.9      21.9       5.1      12.6       4.3
-Stage 2b- Magnitude           34.8      28.0      34.6      47.7      46.7
-Stage 2c- Direction            3.8       2.8       3.3       2.0       2.7
-Stage 3 - Non-Max Suppress     2.0       3.1       3.7       2.1       2.9
-Stage 4 - Double Threshold     0.9       1.6       2.0       1.1       1.5
-Stage 5 - Hysteresis           1.1       1.9       1.7       1.2       1.3
-----------------------------------------------------------------------
+Scalar vs RVV Breakdown:
+----------------------------------------------------------
+Stage                  Scalar       RVV        Speedup
+----------------------------------------------------------
+Gaussian Blur:        13.574 ms   95.899 ms   0.14x
+Sobel Gx/Gy:           3.365 ms   38.336 ms   0.09x
+Magnitude:            23.401 ms   36.696 ms   0.64x
+Direction (scalar):    2.177 ms        -      N/A
+NMS:                   8.709 ms   26.933 ms   0.32x
+Double Threshold:      1.182 ms    9.856 ms   0.12x
+Hysteresis:            1.109 ms    8.511 ms   0.13x
+----------------------------------------------------------
+Total Scalar:         53.518 ms
+Total RVV:           218.407 ms
+Overall Speedup:     0.25x
+==========================================
+=== VLEN=512 ===
+RISC-V binary built at build/rv/canny_rv
+Executing on QEMU with VLEN=512...
+qemu-riscv64 -cpu rv64,v=true,vlen=512 build/rv/canny_rv 
+vector version is not specified, use the default value v1.0
+Using generated rectangle image.
+Canny Edge Detection - Scalar vs RVV Timing
+Image: 512x512 | Warmup: 20 | Iterations: 200
+==========================================
+Saving output: 512x512
 
-Binary Size
-----------------------------------------------------------------------
-Flag        Size (bytes)    Size (KB)
-----------------------------------------------------------------------
--O0         455976          445.3 KB
--O2         463768          452.9 KB
--O3         484024          472.7 KB
--Os         460392          449.6 KB
--Ofast      483928          472.6 KB
-----------------------------------------------------------------------
-
-Speedup vs -O0
-----------------------------------------------------------------------
-Flag        Total (ms)    Speedup
-----------------------------------------------------------------------
--O0          244.162       1.00x
--O2           78.925       3.09x
--O3           67.363       3.62x
--Os          130.718       1.87x
--Ofast        78.807       3.10x
-----------------------------------------------------------------------
-
-Key Observations
-----------------------------------------------------------------------
-- Best performance: -O3 (67.363 ms, 3.62x speedup over -O0)
-- Smallest binary: -O0 (455976 bytes) -- Os did not produce smallest here
-- -O3 vs -Ofast: nearly identical total time (67.363 vs 78.807 ms)
-- Sobel Gx/Gy: biggest gain from -O2 to -O3 (17.287 -> 3.415 ms, 5x)
-- Magnitude: -Os performs worst (62.379 ms vs 22.094 ms at -O2)
-- Gaussian Blur dominates at all optimization levels (33-50% of runtime)
-----------------------------------------------------------------------
+Scalar vs RVV Breakdown:
+----------------------------------------------------------
+Stage                  Scalar       RVV        Speedup
+----------------------------------------------------------
+Gaussian Blur:        13.558 ms   82.938 ms   0.16x
+Sobel Gx/Gy:           3.286 ms   37.818 ms   0.09x
+Magnitude:            22.910 ms   37.436 ms   0.61x
+Direction (scalar):    2.164 ms        -      N/A
+NMS:                   8.859 ms   27.142 ms   0.33x
+Double Threshold:      1.223 ms    9.960 ms   0.12x
+Hysteresis:            1.146 ms    9.398 ms   0.12x
+----------------------------------------------------------
+Total Scalar:         53.146 ms
+Total RVV:           206.855 ms
+Overall Speedup:     0.26x
+==========================================

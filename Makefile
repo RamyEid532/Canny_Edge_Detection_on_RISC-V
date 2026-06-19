@@ -76,6 +76,21 @@ run: canny_rv
 	@echo "Executing on QEMU with VLEN=$(VLEN)..."
 	$(QEMU) $(QEMU_FLAGS) $(RV_BUILD)/canny_rv $(abspath $(IMG))
 
+equiv_test: $(RV_BUILD)/equiv_test
+	@echo "RISC-V equivalence test built"
+
+$(RV_BUILD)/equiv_test: tests/equivalence_test.cpp $(CORE_SRCS)
+	@mkdir -p $(RV_BUILD)
+	$(RV_CXX) $(RV_CXXFLAGS) $^ -o $@
+
+run_equiv:
+	@echo "=== VLEN=128 ===" && $(QEMU) -cpu rv64,v=true,vlen=128 $(RV_BUILD)/equiv_test
+	@echo "=== VLEN=256 ===" && $(QEMU) -cpu rv64,v=true,vlen=256 $(RV_BUILD)/equiv_test
+	@echo "=== VLEN=512 ===" && $(QEMU) -cpu rv64,v=true,vlen=512 $(RV_BUILD)/equiv_test
+
+
+
+
 clean:
 	@echo "Cleaning build directory..."
 	rm -rf $(BUILD_DIR)
