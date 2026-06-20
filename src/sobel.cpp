@@ -73,7 +73,7 @@ void compute_direction(int16_t* Gx, int16_t* Gy, int size, image& direction) {
 }
 
 // -------------------------------------------------------
-// new function
+// Complete function
 // -------------------------------------------------------
 sobel_result sobel_gradient(const image& input) {
     int W = input.width;
