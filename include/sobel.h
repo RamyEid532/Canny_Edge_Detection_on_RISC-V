@@ -24,10 +24,10 @@ struct sobel_result {
     int16_t* Gy;
 };
 
-// الـ function الأصلية
+// Complete Function
 sobel_result sobel_gradient(const image& input);
 
-// الـ functions الجديدة المفصولة للـ profiling
+// Divided into multiple functions for profiling
 void compute_gxgy(const image& input, int16_t* Gx, int16_t* Gy);
 void compute_magnitude(int16_t* Gx, int16_t* Gy, int size,
                        image& mag_l1, image& mag_l2);
